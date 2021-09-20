@@ -1,0 +1,39 @@
+create tables
+
+
+user:
+    name
+    email
+    password
+    profile-picture
+    expert : bool
+    course -> one to many
+    interest : []
+    bio
+
+
+
+materials:
+    author -> auto_fill
+    files -> pdf, videos, pictures
+
+
+
+Course:
+    materials -> one to many
+    category 
+
+
+Test:
+    creator -> user
+    questions
+    answers
+    category
+
+
+Expert_Support:
+    category
+    question
+    asking_user -> email
+    replier_name -> expert_name
+    answered : bool
