@@ -10,5 +10,6 @@ admin.site.register(Account)
 admin.site.register(Test)
 admin.site.register(Materials)
 admin.site.register(Course)
+admin.site.register(Question)
 
 admin.site.register(JWT)

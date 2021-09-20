@@ -222,3 +222,274 @@ def account_signup(request):
         else:
             context['error'] = serializer.errors
             return Response(context, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
+
+#ask questions
+@api_view(["GET", "POST"])
+@authentication_classes((MyAuthentication, ))
+@permission_classes((IsAuthenticated, ))
+def ask_questions(request):
+    if request.method == "GET":
+        context = {
+                    "message": "ask question page", 
+                    "required": 'question'}
+        return Response(context, status=status.HTTP_200_OK)
+
+    if request.method == "POST":
+        context = {}
+        serializer = AskQuestionSerializer(data=request.data)
+        if serializer.is_valid():
+            new_question = serializer.save(request)
+
+            context['message'] = "Question submitted successfully, please check back for your answer"
+
+            return Response(context, status=status.HTTP_201_CREATED)
+        else:
+            context['errors'] = serializer.errors
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+
+        
+
+
+
+
+
+#all questions
+@api_view(["GET"])
+@authentication_classes((MyAuthentication, ))
+@permission_classes((IsAuthenticated, ))
+def all_questions(request):
+    context = {}
+    context['message'] = "All questions page"
+
+    all_questions = Question.objects.all()
+
+    total = {}
+
+    for index, que in enumerate(all_questions):
+        total[index] = {}
+        total[index]["question"] = que.question
+        total[index]["answers"] = [i for i in que.answers]
+        total[index]["asked_by"] = que.asked_by
+        total[index]["answered"] = que.answered
+        total[index]["answered_by"] = que.answered_by
+
+    context['total_questions'] = total
+
+    return Response(context, status=status.HTTP_200_OK)
+
+
+
+
+
+
+
+
+
+
+#all courses
+@api_view(["GET"])
+@authentication_classes((MyAuthentication, ))
+@permission_classes((IsAuthenticated, ))
+def all_courses(request):
+    context = {}
+    context['message'] = "All courses page"
+
+    all_courses = Course.objects.all()
+
+    total = {}
+
+    for index, course in enumerate(all_courses):
+        total[index] = {}
+        total[index]["name"] = course.name
+        total[index]["materials"] = [i for i in course.materials] if course.materials is not None else "Empty"
+        total[index]["category"] = course.category
+        total[index]["created_at"] = course.created_at
+        total[index]["created_by"] = course.created_by.user.username
+
+    context['total_courses'] = total
+
+    return Response(context, status=status.HTTP_200_OK)
+
+
+
+
+
+
+
+#create courses
+@api_view(["GET", "POST"])
+@authentication_classes((MyAuthentication, ))
+@permission_classes((IsAuthenticated, ))
+def create_course(request):
+    if request.method == "GET":
+        context = {}
+        context['message'] = "create course page"
+        context['required'] = "name, category"
+
+        return Response(context, status=status.HTTP_200_OK)
+
+    
+    if request.method == "POST":
+        context = {}
+        course_serializer = CreateCourseSerializer(data=request.data)
+        if course_serializer.is_valid():
+            _ = course_serializer.save(request)
+
+            context['message'] = "Course created successfully"
+
+            return Response(context, status=status.HTTP_201_CREATED)
+        else:
+            context['errors'] = course_serializer.errors
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
+
+#create test
+@api_view(["GET", "POST"])
+@authentication_classes((MyAuthentication, ))
+@permission_classes((IsAuthenticated, ))
+def create_test(request):
+
+    account = Account.objects.get(user=request.user)
+    if not account.expert:
+        context = {"error": "You don't have permission to view this page"}
+        return Response(context, status=status.HTTP_403_FORBIDDEN)
+
+
+    if request.method == "GET":
+        context = {}
+        context['message'] = "create test page"
+        context['required'] = ['name', 'questions (array) ', 'answers (array) ', 'category']
+
+        return Response(context, status=status.HTTP_200_OK)
+
+    
+    if request.method == "POST":
+        context = {}
+        test_serializer = CreateTestSerializer(data=request.data)
+        if test_serializer.is_valid():
+            _ = test_serializer.save(request)
+
+            context['message'] = "Test created successfully"
+
+            return Response(context, status=status.HTTP_201_CREATED)
+        else:
+            context['errors'] = test_serializer.errors
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
+
+#all_tests
+@api_view(["GET"])
+@authentication_classes((MyAuthentication, ))
+@permission_classes((IsAuthenticated, ))
+def all_tests(request):
+    context = {}
+    context['message'] = "All tests page"
+
+    all_tests = Test.objects.all()
+
+    total = {}
+
+    for index, test in enumerate(all_tests):
+        total[index] = {}
+
+        total[index]["name"] = test.name
+        total[index]["created_by"] = test.creator.user.username
+        total[index]["category"] = test.category
+        total[index]["created_at"] = test.created_at
+
+    context['total_courses'] = total
+
+    return Response(context, status=status.HTTP_200_OK)
+
+
+
+
+
+
+
+
+
+#single course
+@api_view(["GET", "POST"])
+@authentication_classes((MyAuthentication, ))
+@permission_classes((IsAuthenticated, ))
+def single_course(request):
+    if request.method == "GET":
+        context = {}
+        context['message'] = "single course page"
+        context['required'] = "course name"
+
+        return Response(context, status=status.HTTP_200_OK)
+
+
+    if request.method == "POST":
+        context = {}
+
+        try:
+            course = Course.objects.get(name=request.data['name'])
+
+            context["name"] = course.name
+            context["materials"] = [i for i in course.materials] if course.materials is not None else "Empty"
+            context["category"] = course.category
+            context["created_at"] = course.created_at
+            context["created_by"] = course.created_by.user.username
+
+            return Response(context, status=status.HTTP_200_OK)
+
+        except Course.DoesNotExist:
+            context['error'] = "Course doesn't exist, check the name and try again"
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+#single test
+@api_view(["GET", "POST"])
+@authentication_classes((MyAuthentication, ))
+@permission_classes((IsAuthenticated, ))
+def single_test(request):
+    if request.method == "GET":
+        context = {}
+        context['message'] = "single test page"
+        context['required'] = "test name"
+
+        return Response(context, status=status.HTTP_200_OK)
+
+
+    if request.method == "POST":
+        context = {}
+
+        try:
+            test = Test.objects.get(name=request.data['name'])
+
+            context["name"] = test.name
+            context["created_by"] = test.creator.user.username
+            context["questions"] = [i for i in test.questions]
+            context["answers"] = [i for i in test.answers]
+            context["category"] = test.category
+            context["created_at"] = test.created_at
+            
+
+            return Response(context, status=status.HTTP_200_OK)
+
+        except Test.DoesNotExist:
+            context['error'] = "Test doesn't exist, check the name and try again"
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+

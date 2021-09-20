@@ -113,7 +113,7 @@ class CourseCreationSerializer(serializers.ModelSerializer):
         model = Course
         fields = ['name', 'category']
 
-    def save(self):
+    def save(self, request):
         for i in ['name', 'category']:
             if i not in self.validated_data:
                 raise serializers.ValidationError({i: f"{i} is needed"})
@@ -121,6 +121,7 @@ class CourseCreationSerializer(serializers.ModelSerializer):
         new_course = Course()
         new_course.name = self.validated_data['name']
         new_course.category = self.validated_data['category']
+        new_course.created_by = request.user.username
 
         new_course.save()
 
@@ -158,3 +159,82 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'email']
+
+
+
+class AskQuestionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Question
+        fields = ['question']
+
+
+    def save(self, request):
+        new_question = Question()
+
+        new_question.question = self.validated_data['question']
+        new_question.answers = []
+        new_question.asked_by = request.user.username
+
+        new_question.save()
+
+        return new_question
+
+
+
+class CreateCourseSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Course
+        fields = ['name', 'category']
+
+
+    def save(self, request):
+        new_course = Course()
+
+        new_course.name = self.validated_data['name']
+        new_course.category = self.validated_data['category']
+        new_course.created_by = Account.objects.get(user=request.user)
+
+
+        new_course.save()
+
+        return new_course
+
+
+class CreateTestSerializer(serializers.ModelSerializer):
+    # name = models.CharField(max_length=30, blank=False, unique=False)
+    # creator = models.OneToOneField(Account, on_delete=models.DO_NOTHING)
+    # questions = ArrayField(models.TextField(max_length=1000, blank=False, unique=False), blank=False, default=list)
+    # answers = ArrayField(models.TextField(max_length=1000, blank=False, unique=False), blank=False, default=list)
+    # category = models.CharField(max_length=20, unique=False, blank=False)
+    # created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        model = Test
+        fields = ['name', 'questions', 'answers', 'category']
+
+
+    def save(self, request):
+        new_test = Test()
+
+        new_test.name = self.validated_data['name']
+        new_test.questions = [que for que in self.validated_data['questions']]
+        new_test.answers = [ans for ans in self.validated_data['answers']]
+        new_test.category = self.validated_data['category']
+
+        new_test.creator = Account.objects.get(user=request.user)
+
+        new_test.save()
+
+        return new_test
+
+
+
+
+
+
+
+# class QuestionSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Question
+#         fields = "__all__"

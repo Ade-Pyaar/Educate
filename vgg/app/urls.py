@@ -15,6 +15,15 @@ urlpatterns = [
 
     path('profile_page', profile_page, name='profile_page'),
 
+    path('ask_questions', ask_questions, name='ask_questions'),
+    path('all_courses', all_courses, name='all_courses'),
+    path('all_tests', all_tests, name='all_tests'),
+    path('all_questions', all_questions, name='all_questions'),
+    path('create_course', create_course, name='create_course'),
+    path('create_test', create_test, name='create_test'),
+    path('single_course', single_course, name='single_course'),
+    path('single_test', single_test, name='single_test'),
+
 
 
 
