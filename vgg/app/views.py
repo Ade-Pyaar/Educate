@@ -208,7 +208,7 @@ def account_signup(request):
         context['required'] = ['first_name', 'last_name',  'username', 'password', 'password_2', 'email', 'interests(array)', 'bio']
         return Response(context, status=status.HTTP_200_OK)
 
-    if request.method == 'POST':
+    elif request.method == 'POST':
         serializer = AccountSignUpSeralizer(data=request.data)
         context = {}
         if serializer.is_valid():
@@ -222,3 +222,29 @@ def account_signup(request):
         else:
             context['error'] = serializer.errors
             return Response(context, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'POST'])
+def expert_support(request):
+    context= {}
+    if request.method== 'GET':
+        questions_available= Expert_support.objects.filter(answered=False)
+        serializer= ExpertSupportSerializer(questions_available, many= True)
+        context['unanswered_expert_questions']= serializer.data
+        return Response(context, status.HTTP_200_OK)
+
+    elif request.method == 'POST':
+        context= {}
+        serializer= ExpertSupportSerializer(data= request.data)
+        if request.is_valid():
+            new_expert_question= serializer.save()
+
+            context['message'] = 'Your request for expert support has been received and an expert will get in touch with you soon'
+            return Response(context, status.HTTP_202_ACCEPTED)
+
+        else:
+            context['error'] = serializer.errors
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+
+
+
