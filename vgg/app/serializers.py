@@ -228,22 +228,19 @@ class CreateTestSerializer(serializers.ModelSerializer):
 
 
 class ExpertSupportSerializer(serializers.ModelSerializer):
-    category = models.CharField(max_length=30, unique=False, blank=False)
-    question_text = models.TextField(unique=False, blank=False)
-    question_file = models.ImageField(upload_to='expert_questions', blank=True)
-    user_email = models.EmailField(blank=False)
-    replier_name = models.CharField(max_length=30, unique=False, blank=False)
-    answered = models.BooleanField(default=False)
 
     class Meta:
         model= Expert_support
-        fields= '__all__'
+        fields= ["category", "question_text"]
 
 
     def save(self, request):
-        for i in ['category', 'question_text', 'user_email', 'replier_name']:
-                if i not in self.validated_data:
-                  raise serializers.ValidationError({i: f"{i} is needed"})
+        new_support = Expert_support()
 
-        if 'question_text' or 'question_file' not  in self.validated_data:
-            raise serializers.ValidationError('Kindly Enter your question')
+        new_support.question_text = self.validated_data['question_text']
+        new_support.category = self.validated_data['category']
+        new_support.user_email = request.user.email
+
+        new_support.save()
+
+        return new_support

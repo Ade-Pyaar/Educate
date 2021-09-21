@@ -208,7 +208,7 @@ def account_signup(request):
         context['required'] = ['first_name', 'last_name',  'username', 'password', 'password_2', 'email', 'interests(array)', 'bio']
         return Response(context, status=status.HTTP_200_OK)
 
-    elif request.method == 'POST':
+    if request.method == 'POST':
         serializer = AccountSignUpSeralizer(data=request.data)
         context = {}
         if serializer.is_valid():
@@ -222,6 +222,9 @@ def account_signup(request):
         else:
             context['error'] = serializer.errors
             return Response(context, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 
 
 
@@ -344,6 +347,11 @@ def create_course(request):
         else:
             context['errors'] = course_serializer.errors
             return Response(context, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
 
 
 #create test
@@ -486,8 +494,24 @@ def single_test(request):
             return Response(context, status=status.HTTP_400_BAD_REQUEST)
 
 
+#upload material
+# @api_view(["GET", "POST"])
+# @authentication_classes((MyAuthentication, ))
+# @permission_classes((IsAuthenticated, ))
+# def upload_material(request):
+#     if request.method == "GET":
+#         context = {}
+
+#         context['message'] = "material upload page"
+#         context['required'] = "course_name, "
+
+
+
+
 
 @api_view(['GET', 'POST'])
+@authentication_classes((MyAuthentication, ))
+@permission_classes((IsAuthenticated, ))
 def expert_support(request):
     context= {}
     if request.method== 'GET':
@@ -507,3 +531,4 @@ def expert_support(request):
 
         else:
             context['error'] = serializer.errors
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
