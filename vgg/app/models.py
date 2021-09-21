@@ -48,8 +48,9 @@ class Materials(models.Model):
 
 class Course(models.Model):
     name = models.CharField(max_length=30, unique=False, blank=False)
-    materials = models.ForeignKey(Materials, on_delete=models.CASCADE)
+    materials = models.ForeignKey(Materials, on_delete=models.CASCADE, null=True)
     category = models.CharField(max_length=20, unique=False, blank=False)
+    created_by = models.OneToOneField(Account, on_delete=models.DO_NOTHING)
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -91,6 +92,26 @@ class JWT(models.Model):
     def __str__(self):
         return self.user.username
 
+
+
+
+
+
+class Question(models.Model):
+    question = models.TextField()
+    answers = ArrayField(models.TextField(blank=True, unique=False), blank=True, unique=False)
+    asked_by = models.CharField(unique=False, blank=False, max_length=50)
+    answered = models.BooleanField(default=False)
+    answered_by = models.CharField(max_length=50, unique=False, blank=True)
+
+    class Meta:
+        ordering = ['-question']
+
+    def __str__(self) -> str:
+        return self.question
+
+
+
 class Expert_support(models.Model):
     category = models.CharField(max_length=30, unique=False, blank=False)
     question_text = models.TextField(unique=False, blank=False)
@@ -104,4 +125,3 @@ class Expert_support(models.Model):
 
     def __str__(self):
         return self.category
-
