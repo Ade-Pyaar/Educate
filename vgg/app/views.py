@@ -524,7 +524,7 @@ def expert_support(request):
         context= {}
         serializer= ExpertSupportSerializer(data= request.data)
         if request.is_valid():
-            new_expert_question= serializer.save()
+            _= serializer.save()
 
             context['message'] = 'Your request for expert support has been received and an expert will get in touch with you soon'
             return Response(context, status.HTTP_202_ACCEPTED)

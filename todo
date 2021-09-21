@@ -37,3 +37,25 @@ Expert_Support:
     asking_user -> email
     replier_name -> expert_name
     answered : bool
+
+
+
+
+
+pages:
+    landing page ... done
+    home page ... done
+    login ... done
+    profile ... done
+    logout ... done 
+    signup .. done
+    ask question ... done
+    
+    Tests:
+        single test ... done
+    courses:
+        single course ... done
+
+    
+
+    expert support ... done
